@@ -10,9 +10,6 @@ using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-using Npgsql;
-using System.Data;
 
 namespace DocumentStoreManagement.Infrastructure.ServiceExtension
 {
@@ -27,11 +24,13 @@ namespace DocumentStoreManagement.Infrastructure.ServiceExtension
         public static IServiceCollection AddDIServices(this IServiceCollection services, IConfiguration configuration)
         {
             // SQL context
-            /*services.AddScoped<DbContext, SqlApplicationContext>();
-            services.AddTransient<IUnitOfWork, SqlUnitOfWork>();
-            services.AddScoped(typeof(IGenericRepository<>), typeof(SqlGenericRepository<>));
-            var connectionString = configuration.GetConnectionString("SqlDbConnection") ?? throw new InvalidOperationException("Connection string 'SqlDbConnection' not found.");
-            services.AddDbContext<DbContext>(options => options.UseSqlServer(connectionString));*/
+            services.AddScoped<DbContext, SqlApplicationContext>();
+            services.AddScoped<IUnitOfWork, SqlUnitOfWork>();
+            services.AddScoped(typeof(IRepository<>), typeof(SqlRepository<>));
+            services.AddScoped(typeof(IQueryRepository<>), typeof(SqlQueryRepository<>));
+            string connectionString = configuration.GetConnectionString("SqlDbConnection") ?? throw new InvalidOperationException("Connection string 'SqlDbConnection' not found.");
+            services.AddTransient<System.Data.IDbConnection>(db => new Microsoft.Data.SqlClient.SqlConnection(connectionString));
+            services.AddDbContext<DbContext>(options => options.UseSqlServer(connectionString));
 
             // MongoDB context
             /*services.Configure<MongoDbSettings>(
@@ -39,15 +38,15 @@ namespace DocumentStoreManagement.Infrastructure.ServiceExtension
             services.AddSingleton<IMongoDbSettings>(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             services.AddScoped<IMongoApplicationContext, MongoApplicationContext>();
-            services.AddTransient<IUnitOfWork, MongoUnitOfWork>();
-            services.AddScoped(typeof(IGenericRepository<>), typeof(MongoGenericRepository<>));
+            services.AddScoped<IUnitOfWork, MongoUnitOfWork>();
+            services.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
             string connectionString = configuration.GetConnectionString("SqlDbConnection") ?? throw new InvalidOperationException("Connection string 'SqlDbConnection' not found.");
             services.AddDbContext<DbContext>(options => options.UseSqlServer(connectionString));*/
 
             // Postgres context
-            string connectionString = configuration.GetConnectionString("PostgresConnection");
+            /*string connectionString = configuration.GetConnectionString("PostgresConnection");
             services.AddScoped<DbContext, PostgresApplicationContext>();
-            services.AddTransient<IUnitOfWork, SqlUnitOfWork>();
+            services.AddScoped<IUnitOfWork, SqlUnitOfWork>();
             services.AddScoped(typeof(IRepository<>), typeof(SqlRepository<>));
             services.AddScoped(typeof(IQueryRepository<>), typeof(SqlQueryRepository<>));
             services.AddDbContext<DbContext>(options =>
@@ -59,7 +58,7 @@ namespace DocumentStoreManagement.Infrastructure.ServiceExtension
             services.AddSingleton<IMongoDbSettings>(sp =>
                 sp.GetRequiredService<IOptions<MongoDbSettings>>().Value);
             services.AddScoped<IMongoApplicationContext, MongoApplicationContext>();
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);*/
 
             // Register services
             services.AddScoped<IDocumentService, DocumentService>();

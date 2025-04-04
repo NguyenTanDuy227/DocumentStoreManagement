@@ -6,9 +6,9 @@ using MediatR;
 namespace DocumentStoreManagement.Services.Handlers.DocumentHandlers
 {
     /// <inheritdoc/>
-    public class DeleteDocumentHandler(IRepository<Document> documentRepository) : IRequestHandler<DeleteDocumentCommand>
+    public class DeleteDocumentHandler(IUnitOfWork unitOfWork) : IRequestHandler<DeleteDocumentCommand>
     {
-        private readonly IRepository<Document> _documentRepository = documentRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         /// <summary>
         /// Handler to delete document
@@ -17,7 +17,8 @@ namespace DocumentStoreManagement.Services.Handlers.DocumentHandlers
         /// <param name="cancellationToken"></param>
         public async Task Handle(DeleteDocumentCommand command, CancellationToken cancellationToken)
         {
-            await _documentRepository.RemoveAsync(command.Document);
+            await _unitOfWork.Repository<Document>().RemoveAsync(command.Document);
+            await _unitOfWork.SaveAsync(cancellationToken);
         }
     }
 }

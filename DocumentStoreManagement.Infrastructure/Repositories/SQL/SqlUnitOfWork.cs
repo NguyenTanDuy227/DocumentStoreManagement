@@ -1,5 +1,6 @@
 ﻿using DocumentStoreManagement.Core.Interfaces;
 using Microsoft.EntityFrameworkCore;
+using System.Data;
 using System.Runtime.CompilerServices;
 
 namespace DocumentStoreManagement.Infrastructure.Repositories.SQL
@@ -7,10 +8,49 @@ namespace DocumentStoreManagement.Infrastructure.Repositories.SQL
     /// <summary>
     /// Encapsulates all repository transactions.
     /// </summary>
-    public class SqlUnitOfWork(DbContext dbContext) : IUnitOfWork
+    public class SqlUnitOfWork : IUnitOfWork
     {
-        private readonly DbContext _dbContext = dbContext;
+        private readonly DbContext _dbContext;
+        private readonly IDbConnection _dbConnection;
         private bool _disposed = false;
+
+        // Dictionary to store repositories by type
+        private readonly Dictionary<Type, object> _repositories = [];
+        private readonly Dictionary<Type, object> _queryRepositories = [];
+
+        /// <summary>
+        /// SQL Unit Of Work constructor
+        /// </summary>
+        /// <param name="dbContext"></param>
+        public SqlUnitOfWork(DbContext dbContext)
+        {
+            _dbContext = dbContext;
+            _dbConnection = _dbContext.Database.GetDbConnection();
+        }
+
+        /// <inheritdoc/>
+        public IRepository<T> Repository<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!_repositories.TryGetValue(type, out object value))
+            {
+                value = new SqlRepository<T>(_dbContext);
+                _repositories[type] = value;
+            }
+            return (IRepository<T>)value;
+        }
+
+        /// <inheritdoc/>
+        public IQueryRepository<T> QueryRepository<T>() where T : class
+        {
+            var type = typeof(T);
+            if (!_queryRepositories.TryGetValue(type, out object value))
+            {
+                value = new SqlQueryRepository<T>(_dbConnection);
+                _queryRepositories[type] = value;
+            }
+            return (IQueryRepository<T>)value;
+        }
 
         /// <inheritdoc/>
         public async Task SaveAsync(CancellationToken cancellationToken = default) => await _dbContext.SaveChangesAsync(cancellationToken);

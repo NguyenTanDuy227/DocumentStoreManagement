@@ -1,5 +1,4 @@
-﻿using DocumentStoreManagement.Core.Interfaces;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
 namespace DocumentStoreManagement.Controllers
 {
@@ -9,12 +8,7 @@ namespace DocumentStoreManagement.Controllers
     /// <remarks>
     /// Constructor for unit of work
     /// </remarks>
-    /// <param name="unitOfWork"></param>
-    public class BaseController(IUnitOfWork unitOfWork) : ControllerBase
+    public class BaseController : ControllerBase
     {
-        /// <summary>
-        /// Base unit of work
-        /// </summary>
-        protected IUnitOfWork _unitOfWork = unitOfWork;
     }
 }

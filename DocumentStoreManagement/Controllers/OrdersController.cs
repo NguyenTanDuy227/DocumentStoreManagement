@@ -1,6 +1,4 @@
-﻿using DocumentStoreManagement.Core;
-using DocumentStoreManagement.Core.DTOs;
-using DocumentStoreManagement.Core.Interfaces;
+﻿using DocumentStoreManagement.Core.DTOs;
 using DocumentStoreManagement.Core.Models;
 using DocumentStoreManagement.Services.Cache;
 using DocumentStoreManagement.Services.Interfaces;
@@ -12,29 +10,20 @@ namespace DocumentStoreManagement.Controllers
     /// <summary>
     /// Order Management API Controller
     /// </summary>
+    /// <remarks>
+    /// Add dependencies to controller
+    /// </remarks>
+    /// <param name="orderService"></param>
+    /// <param name="rabbitMQProducer"></param>
+    /// <param name="cacheService"></param>
     [Route("api/[controller]")]
     [ApiController]
-    public class OrdersController : BaseController
+    public class OrdersController(IOrderService orderService, IRabbitMQProducer rabbitMQProducer, ICacheService cacheService) : BaseController
     {
-        private readonly IOrderService _orderService;
-        private readonly IRabbitMQProducer _rabbitMQProducer;
-        private readonly ICacheService _cacheService;
+        private readonly IOrderService _orderService = orderService;
+        private readonly IRabbitMQProducer _rabbitMQProducer = rabbitMQProducer;
+        private readonly ICacheService _cacheService = cacheService;
         private static readonly string cacheKey = "order-list-cache";
-
-        /// <summary>
-        /// Add dependencies to controller
-        /// </summary>
-        /// <param name="unitOfWork"></param>
-        /// <param name="orderService"></param>
-        /// <param name="rabbitMQProducer"></param>
-        /// <param name="cacheService"></param>
-        public OrdersController(IUnitOfWork unitOfWork, IOrderService orderService, IRabbitMQProducer rabbitMQProducer, ICacheService cacheService) : base(unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-            _orderService = orderService;
-            _rabbitMQProducer = rabbitMQProducer;
-            _cacheService = cacheService;
-        }
 
         /// <summary>
         /// Gets the order list from database
@@ -152,8 +141,6 @@ namespace DocumentStoreManagement.Controllers
             {
                 // Update order
                 await _orderService.Update(updatedOrder);
-                await _unitOfWork.SaveAsync();
-                await _unitOfWork.RefreshMaterializedViewAsync(CustomConstants.MaterializedViewOrdersInclude);
             }
             catch (Exception e)
             {
@@ -203,8 +190,6 @@ namespace DocumentStoreManagement.Controllers
             {
                 // Add a new order
                 order = await _orderService.Create(newOrder);
-                await _unitOfWork.SaveAsync();
-                await _unitOfWork.RefreshMaterializedViewAsync(CustomConstants.MaterializedViewOrdersInclude);
 
                 // Loop through each order details to clear values, avoid self referencing loop 
                 foreach (OrderDetail item in order.OrderDetails)
@@ -254,8 +239,6 @@ namespace DocumentStoreManagement.Controllers
 
             // Delete order
             await _orderService.Delete(order);
-            await _unitOfWork.SaveAsync();
-            await _unitOfWork.RefreshMaterializedViewAsync(CustomConstants.MaterializedViewOrdersInclude);
 
             return NoContent();
         }

@@ -1,4 +1,5 @@
-﻿using DocumentStoreManagement.Core.Interfaces;
+﻿using DocumentStoreManagement.Core;
+using DocumentStoreManagement.Core.Interfaces;
 using DocumentStoreManagement.Core.Models;
 using DocumentStoreManagement.Services.Commands.OrderCommands;
 using MediatR;
@@ -6,9 +7,9 @@ using MediatR;
 namespace DocumentStoreManagement.Services.Handlers.OrderHandlers
 {
     /// <inheritdoc/>
-    public class CreateOrderHandler(IRepository<Order> orderRepository) : IRequestHandler<CreateOrderCommand, Order>
+    public class CreateOrderHandler(IUnitOfWork unitOfWork) : IRequestHandler<CreateOrderCommand, Order>
     {
-        private readonly IRepository<Order> _orderRepository = orderRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         /// <summary>
         /// Handler to create order
@@ -17,9 +18,10 @@ namespace DocumentStoreManagement.Services.Handlers.OrderHandlers
         /// <param name="cancellationToken"></param>
         public async Task<Order> Handle(CreateOrderCommand command, CancellationToken cancellationToken)
         {
-            Order order = command.Order;
-            await _orderRepository.AddAsync(order, cancellationToken);
-            return order;
+            await _unitOfWork.Repository<Order>().AddAsync(command.Order, cancellationToken);
+            await _unitOfWork.SaveAsync(cancellationToken);
+            await _unitOfWork.RefreshMaterializedViewAsync(CustomConstants.MaterializedViewOrdersInclude);
+            return command.Order;
         }
     }
 }

@@ -8,22 +8,15 @@ namespace DocumentStoreManagement.Controllers
     /// <summary>
     /// Student Management API Controller - SQL database
     /// </summary>
+    /// <remarks>
+    /// Add dependencies to controller
+    /// </remarks>
+    /// <param name="unitOfWork"></param>
     [Route("api/[controller]")]
     [ApiController]
-    public class StudentsController : BaseController
+    public class StudentsController(IUnitOfWork unitOfWork) : BaseController
     {
-        private readonly IRepository<Student> _studentRepository;
-
-        /// <summary>
-        /// Add dependencies to controller
-        /// </summary>
-        /// <param name="unitOfWork"></param>
-        /// <param name="studentRepository"></param>
-        public StudentsController(IUnitOfWork unitOfWork, IRepository<Student> studentRepository) : base(unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-            _studentRepository = studentRepository;
-        }
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         /// <summary>
         /// Gets the student list from database
@@ -39,7 +32,7 @@ namespace DocumentStoreManagement.Controllers
         public async Task<IEnumerable<Student>> GetStudents()
         {
             // Get list of students
-            return await _studentRepository.GetAllAsync();
+            return await _unitOfWork.Repository<Student>().GetAllAsync();
         }
 
         /// <summary>
@@ -57,7 +50,7 @@ namespace DocumentStoreManagement.Controllers
         public async Task<ActionResult<Student>> GetStudent(int id)
         {
             // Get student by id
-            Student student = await _studentRepository.GetByIdAsync(id);
+            Student student = await _unitOfWork.Repository<Student>().GetByIdAsync(id);
             if (student == null)
             {
                 return NotFound();
@@ -95,7 +88,7 @@ namespace DocumentStoreManagement.Controllers
             }
 
             // Update student
-            await _studentRepository.UpdateAsync(student);
+            await _unitOfWork.Repository<Student>().UpdateAsync(student);
 
             try
             {
@@ -139,7 +132,7 @@ namespace DocumentStoreManagement.Controllers
         public async Task<ActionResult<Student>> PostStudent(Student student)
         {
             // Add a new student
-            await _studentRepository.AddAsync(student);
+            await _unitOfWork.Repository<Student>().AddAsync(student);
             try
             {
                 // Save changes
@@ -176,14 +169,14 @@ namespace DocumentStoreManagement.Controllers
         public async Task<IActionResult> DeleteStudent(int id)
         {
             // Get student by id
-            Student student = await _studentRepository.GetByIdAsync(id);
+            Student student = await _unitOfWork.Repository<Student>().GetByIdAsync(id);
             if (student == null)
             {
                 return NotFound();
             }
 
             // Delete student
-            await _studentRepository.RemoveAsync(student);
+            await _unitOfWork.Repository<Student>().RemoveAsync(student);
             await _unitOfWork.SaveAsync();
 
             return NoContent();
@@ -203,8 +196,8 @@ namespace DocumentStoreManagement.Controllers
         public async Task<IActionResult> DeleteAllStudents()
         {
             // Get all students from database and delete
-            IEnumerable<Student> students = await _studentRepository.GetAllAsync();
-            await _studentRepository.RemoveRangeAsync(students);
+            IEnumerable<Student> students = await _unitOfWork.Repository<Student>().GetAllAsync();
+            await _unitOfWork.Repository<Student>().RemoveRangeAsync(students);
             await _unitOfWork.SaveAsync();
 
             return NoContent();
@@ -217,7 +210,7 @@ namespace DocumentStoreManagement.Controllers
         /// <returns>Boolean</returns>
         private async Task<bool> StudentExists(int id)
         {
-            return await _studentRepository.CheckExistsAsync(e => e.Id == id);
+            return await _unitOfWork.Repository<Student>().CheckExistsAsync(e => e.Id == id);
         }
     }
 }

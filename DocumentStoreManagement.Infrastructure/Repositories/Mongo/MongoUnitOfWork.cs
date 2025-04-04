@@ -10,6 +10,18 @@ namespace DocumentStoreManagement.Infrastructure.Repositories.Mongo
         /// <inheritdoc/>
         public async Task SaveAsync(CancellationToken cancellationToken = default) => await Task.CompletedTask;
 
+        /// <inheritdoc />
+        public IRepository<T> Repository<T>() where T : class
+        {
+            throw new NotImplementedException();
+        }
+
+        /// <inheritdoc />
+        public IQueryRepository<T> QueryRepository<T>() where T : class
+        {
+            throw new NotImplementedException();
+        }
+
         /// <inheritdoc/>
         public async Task RefreshMaterializedViewAsync(string viewName) => await Task.CompletedTask;
 

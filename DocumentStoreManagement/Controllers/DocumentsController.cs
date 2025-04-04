@@ -1,5 +1,4 @@
-﻿using DocumentStoreManagement.Core.Interfaces;
-using DocumentStoreManagement.Core.Models;
+﻿using DocumentStoreManagement.Core.Models;
 using DocumentStoreManagement.Services.Cache;
 using DocumentStoreManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
@@ -9,26 +8,18 @@ namespace DocumentStoreManagement.Controllers
     /// <summary>
     /// Document Management API Controller
     /// </summary>
+    /// <remarks>
+    /// Add dependencies to controller
+    /// </remarks>
+    /// <param name="documentService"></param>
+    /// <param name="cacheService"></param>
     [Route("api/[controller]")]
     [ApiController]
-    public class DocumentsController : BaseController
+    public class DocumentsController(IDocumentService documentService, ICacheService cacheService) : BaseController
     {
-        private readonly IDocumentService _documentService;
-        private readonly ICacheService _cacheService;
+        private readonly IDocumentService _documentService = documentService;
+        private readonly ICacheService _cacheService = cacheService;
         private static readonly string cacheKey = "document-list-cache";
-
-        /// <summary>
-        /// Add dependencies to controller
-        /// </summary>
-        /// <param name="unitOfWork"></param>
-        /// <param name="documentService"></param>
-        /// <param name="cacheService"></param>
-        public DocumentsController(IUnitOfWork unitOfWork, IDocumentService documentService, ICacheService cacheService) : base(unitOfWork)
-        {
-            _unitOfWork = unitOfWork;
-            _documentService = documentService;
-            _cacheService = cacheService;
-        }
 
         /// <summary>
         /// Searches the document list by type
@@ -127,7 +118,6 @@ namespace DocumentStoreManagement.Controllers
             {
                 // Update document
                 await _documentService.Update(updatedDocument);
-                await _unitOfWork.SaveAsync();
             }
             catch (Exception e)
             {
@@ -236,7 +226,6 @@ namespace DocumentStoreManagement.Controllers
 
             // Delete document
             await _documentService.Delete(document);
-            await _unitOfWork.SaveAsync();
 
             return NoContent();
         }
@@ -253,7 +242,6 @@ namespace DocumentStoreManagement.Controllers
             {
                 // Add a new document
                 await _documentService.Create(newDocument);
-                await _unitOfWork.SaveAsync();
             }
             catch (Exception e)
             {

@@ -6,9 +6,9 @@ using MediatR;
 namespace DocumentStoreManagement.Services.Handlers.DocumentHandlers
 {
     /// <inheritdoc/>
-    public class UpdateDocumentHandler(IRepository<Document> documentRepository) : IRequestHandler<UpdateDocumentCommand>
+    public class UpdateDocumentHandler(IUnitOfWork unitOfWork) : IRequestHandler<UpdateDocumentCommand>
     {
-        private readonly IRepository<Document> _documentRepository = documentRepository;
+        private readonly IUnitOfWork _unitOfWork = unitOfWork;
 
         /// <summary>
         /// Handler to update document
@@ -17,7 +17,8 @@ namespace DocumentStoreManagement.Services.Handlers.DocumentHandlers
         /// <param name="cancellationToken"></param>
         public async Task Handle(UpdateDocumentCommand command, CancellationToken cancellationToken)
         {
-            await _documentRepository.UpdateAsync(command.Document);
+            await _unitOfWork.Repository<Document>().UpdateAsync(command.Document);
+            await _unitOfWork.SaveAsync(cancellationToken);
         }
     }
 }
