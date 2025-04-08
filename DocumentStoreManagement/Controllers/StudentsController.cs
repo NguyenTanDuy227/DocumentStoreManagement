@@ -32,7 +32,7 @@ namespace DocumentStoreManagement.Controllers
         public async Task<IEnumerable<Student>> GetStudents()
         {
             // Get list of students
-            return await _unitOfWork.Repository<Student>().GetAllAsync();
+            return await _unitOfWork.QueryRepository<Student>().GetAllAsync();
         }
 
         /// <summary>
@@ -50,7 +50,7 @@ namespace DocumentStoreManagement.Controllers
         public async Task<ActionResult<Student>> GetStudent(int id)
         {
             // Get student by id
-            Student student = await _unitOfWork.Repository<Student>().GetByIdAsync(id);
+            Student student = await _unitOfWork.QueryRepository<Student>().GetByIdAsync(id);
             if (student == null)
             {
                 return NotFound();

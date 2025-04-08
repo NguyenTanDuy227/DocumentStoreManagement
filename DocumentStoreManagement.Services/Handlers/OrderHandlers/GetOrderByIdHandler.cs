@@ -1,5 +1,4 @@
-﻿using DocumentStoreManagement.Core;
-using DocumentStoreManagement.Core.Interfaces;
+﻿using DocumentStoreManagement.Core.Interfaces;
 using DocumentStoreManagement.Core.Models;
 using DocumentStoreManagement.Services.Queries.OrderQueries;
 using MediatR;
@@ -18,7 +17,7 @@ namespace DocumentStoreManagement.Services.Handlers.OrderHandlers
         /// <param name="cancellationToken"></param>
         public async Task<Order> Handle(GetOrderByIdQuery query, CancellationToken cancellationToken)
         {
-            return await _orderRepository.GetByIdAsync(CustomConstants.OrdersTable, query.Id);
+            return await _orderRepository.GetByIdAsync(query.Id);
         }
     }
 }

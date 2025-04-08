@@ -20,33 +20,33 @@ namespace DocumentStoreManagement.Infrastructure.Repositories.SQL
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<T>> GetAllAsync(string table)
+        public async Task<IEnumerable<T>> GetAllAsync()
         {
-            string query = $"SELECT * FROM {table}";
+            string query = $"SELECT * FROM {typeof(T).Name}s";
             return await _db.QueryAsync<T>(query);
         }
 
         /// <inheritdoc/>
         public async Task<IEnumerable<T>> GetByDiscriminator(string table)
         {
-            string query = $@"SELECT * FROM {table} 
+            string query = $@"SELECT * FROM {table}
                             WHERE ""Discriminator"" = '{typeof(T).Name}'";
             return await _db.QueryAsync<T>(query);
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<T>> GetBetweenDatesAsync(string table, string column, string from, string to)
+        public async Task<IEnumerable<T>> GetBetweenDatesAsync(string column, string from, string to)
         {
-            string query = $@"SELECT * FROM {table}
+            string query = $@"SELECT * FROM {typeof(T).Name}s
                             WHERE ""{column}""
                             BETWEEN '{from}' AND '{to}'";
             return await _db.QueryAsync<T>(query);
         }
 
         /// <inheritdoc/>
-        public async Task<T> GetByIdAsync(string table, object id)
+        public async Task<T> GetByIdAsync(object id)
         {
-            string query = $@"SELECT * FROM {table}
+            string query = $@"SELECT * FROM {typeof(T).Name}s
                             WHERE ""{nameof(BaseEntity.Id)}"" = '{id}'";
             return await _db.QueryFirstOrDefaultAsync<T>(query);
         }

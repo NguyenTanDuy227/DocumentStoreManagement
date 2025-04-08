@@ -16,33 +16,30 @@
         /// <summary>
         /// Gets all the data from a table
         /// </summary>
-        /// <param name="table"></param>
         /// <returns>List of data</returns>
-        Task<IEnumerable<T>> GetAllAsync(string table);
+        Task<IEnumerable<T>> GetAllAsync();
 
         /// <summary>
         /// Get all the data from a table by a discriminator
         /// </summary>
         /// <param name="table"></param>
-        /// <returns>List of data</returns>
+        /// <returns></returns>
         Task<IEnumerable<T>> GetByDiscriminator(string table);
 
         /// <summary>
         /// Gets all the data from a table which between 2 dates
         /// </summary>
-        /// <param name="table"></param>
         /// <param name="column"></param>
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns>A list of data</returns>
-        Task<IEnumerable<T>> GetBetweenDatesAsync(string table, string column, string from, string to);
+        Task<IEnumerable<T>> GetBetweenDatesAsync(string column, string from, string to);
 
         /// <summary>
         /// Gets an item by its Id
         /// </summary>
-        /// <param name="table"></param>
         /// <param name="id"></param>
         /// <returns>An item which matches the Id</returns>
-        Task<T> GetByIdAsync(string table, object id);
+        Task<T> GetByIdAsync(object id);
     }
 }

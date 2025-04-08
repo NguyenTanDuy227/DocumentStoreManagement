@@ -1,5 +1,4 @@
-﻿using DocumentStoreManagement.Core;
-using DocumentStoreManagement.Core.Interfaces;
+﻿using DocumentStoreManagement.Core.Interfaces;
 using DocumentStoreManagement.Core.Models;
 using DocumentStoreManagement.Services.Queries.OrderQueries;
 using MediatR;
@@ -24,7 +23,7 @@ namespace DocumentStoreManagement.Services.Handlers.OrderHandlers
             string fromFormatted = request.From.ToString(format);
             string toFormatted = request.To.ToString(format);
 
-            return await _orderRepository.GetBetweenDatesAsync(CustomConstants.OrdersTable, nameof(Order.BorrowDate), fromFormatted, toFormatted);
+            return await _orderRepository.GetBetweenDatesAsync(nameof(Order.BorrowDate), fromFormatted, toFormatted);
         }
     }
 }
