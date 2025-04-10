@@ -10,6 +10,6 @@
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="message"></param>
-        public void SendOrderMessage<T>(T message);
+        public Task SendOrderMessageAsync<T>(T message);
     }
 }

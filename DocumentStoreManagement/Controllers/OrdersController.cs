@@ -199,7 +199,7 @@ namespace DocumentStoreManagement.Controllers
                 }
 
                 // Send the inserted order data to the queue and consumer will listening this data from queue
-                _rabbitMQProducer.SendOrderMessage(order);
+                await _rabbitMQProducer.SendOrderMessageAsync(order);
             }
             catch (Exception e)
             {

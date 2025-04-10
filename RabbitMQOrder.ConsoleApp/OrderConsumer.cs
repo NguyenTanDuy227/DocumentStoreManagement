@@ -12,7 +12,7 @@ namespace RabbitMQOrder.ConsoleApp
     {
         private readonly IRepository<Order> _mongoOrderRepository = mongoOrderRepository;
 
-        public Task StartAsync(CancellationToken cancellationToken)
+        public async Task StartAsync(CancellationToken cancellationToken)
         {
             // Here we specify the Rabbit MQ Server. we use rabbitMQ docker image and use it
             ConnectionFactory factory = new()
@@ -21,34 +21,32 @@ namespace RabbitMQOrder.ConsoleApp
             };
 
             // Create the RabbitMQ connection using connection factory details as i mentioned above
-            IConnection connection = factory.CreateConnection();
+            IConnection connection = await factory.CreateConnectionAsync(cancellationToken);
 
             // Here we create channel with session and model
-            using IChannel channel = connection.CreateChannel();
+            using IChannel channel = await connection.CreateChannelAsync(cancellationToken: cancellationToken);
 
             // Declare the queue after mentioning name and a few property related to that
-            channel.QueueDeclare("order", exclusive: false);
+            await channel.QueueDeclareAsync("order", exclusive: false, cancellationToken: cancellationToken);
 
             // Set Event object which listen message from channel which is sent by producer
-            EventingBasicConsumer consumer = new(channel);
-            consumer.Received += async (model, eventArgs) =>
+            AsyncEventingBasicConsumer consumer = new(channel);
+            consumer.ReceivedAsync += async (model, eventArgs) =>
             {
                 byte[] body = eventArgs.Body.ToArray();
                 string message = Encoding.UTF8.GetString(body);
                 Console.WriteLine($"Order message received: {message}");
 
                 // Insert new order
-                await InsertOrder(message);
+                await InsertOrderAsync(message);
             };
 
             // Read the message
-            channel.BasicConsume(queue: "order", autoAck: true, consumer: consumer);
+            await channel.BasicConsumeAsync(queue: "order", autoAck: true, consumer: consumer, cancellationToken: cancellationToken);
             Console.ReadKey();
-
-            return Task.CompletedTask;
         }
 
-        private async Task InsertOrder(string message)
+        private async Task InsertOrderAsync(string message)
         {
             // Insert order into MongoDB
             Order order = JsonConvert.DeserializeObject<Order>(message) ?? throw new Exception("Deserialize order failed!");

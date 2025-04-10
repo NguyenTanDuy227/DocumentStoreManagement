@@ -24,7 +24,7 @@ namespace DocumentStoreManagement.Services.Behaviors
         {
             _logger.LogInformation("Handling {TRequestName}", typeof(TRequest).Name);
 
-            TResponse response = await next();
+            TResponse response = await next(cancellationToken);
 
             _logger.LogInformation("Handled {TResponseName}", typeof(TResponse).Name);
 

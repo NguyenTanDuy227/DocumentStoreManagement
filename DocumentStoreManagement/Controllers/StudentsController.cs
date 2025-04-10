@@ -70,7 +70,7 @@ namespace DocumentStoreManagement.Controllers
         ///
         ///     PUT api/students/{id}
         ///     {
-        ///         "id": "Student Id"
+        ///         "id": "Student Id",
         ///         "identityCode": "Student Identity Code",
         ///         "name": "Student #1",
         ///         "age": 18,

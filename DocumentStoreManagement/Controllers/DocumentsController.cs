@@ -1,5 +1,4 @@
 ﻿using DocumentStoreManagement.Core.Models;
-using DocumentStoreManagement.Services.Cache;
 using DocumentStoreManagement.Services.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
@@ -12,13 +11,13 @@ namespace DocumentStoreManagement.Controllers
     /// Add dependencies to controller
     /// </remarks>
     /// <param name="documentService"></param>
-    /// <param name="cacheService"></param>
+    ///// <param name="cacheService"></param>
     [Route("api/[controller]")]
     [ApiController]
-    public class DocumentsController(IDocumentService documentService, ICacheService cacheService) : BaseController
+    public class DocumentsController(IDocumentService documentService/*, ICacheService cacheService*/) : BaseController
     {
         private readonly IDocumentService _documentService = documentService;
-        private readonly ICacheService _cacheService = cacheService;
+        //private readonly ICacheService _cacheService = cacheService;
         private static readonly string cacheKey = "document-list-cache";
 
         /// <summary>
@@ -46,10 +45,11 @@ namespace DocumentStoreManagement.Controllers
                 TimeSpan expiration = TimeSpan.FromMinutes(30);
 
                 // Get list of documents
-                return Ok(await _cacheService.GetOrSetAsync(
-                    key: $"{cacheKey}-{type}",
-                    func: () => _documentService.GetByType(type),
-                    expiration: expiration));
+                //return Ok(await _cacheService.GetOrSetAsync(
+                //    key: $"{cacheKey}-{type}",
+                //    func: () => _documentService.GetByType(type),
+                //    expiration: expiration));
+                return Ok(await _documentService.GetByType(type));
             }
             catch (Exception e)
             {
